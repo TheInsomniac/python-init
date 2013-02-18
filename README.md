@@ -1,6 +1,11 @@
 python init
 ===========
 
+An interactive, project structure generation tool, inspired by cabal init.
+
+List of options
+---------------
+
 * name
 * description
 * author's name
