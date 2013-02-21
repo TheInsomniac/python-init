@@ -3,23 +3,10 @@ python init
 
 An interactive, project structure generation tool, inspired by cabal init.
 
-List of options
----------------
+Installation
+------------
 
-* name
-* description
-* author's name
-* author's email
-* project url
-* library vs executable
-* initial version (semver)
-* create docs dir?
-* create requirements file?
-* license
-* gitignore
-* readme
-
-Add ability to create `$HOME/.python-init` file for customizating defaults.
+Download the `python-init` file and put it somewhere on your `$PATH`.
 
 License
 -------

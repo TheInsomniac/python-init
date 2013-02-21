@@ -18,6 +18,7 @@
 
 from datetime import datetime
 import sys
+import os
 
 GPLv3 = """
                     GNU GENERAL PUBLIC LICENSE
@@ -1243,7 +1244,7 @@ APACHE = """
 """
 
 MIT = """
-Copyright (C) %s, %s
+Copyright (C) %(year)s, %(author_name)s
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -1265,7 +1266,7 @@ so, subject to the following conditions:
 """
 
 BSD2 = """
-Copyright (c) %s, %s
+Copyright (c) %(year)s, %(author_name)s
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -1294,7 +1295,7 @@ either expressed or implied, of the FreeBSD Project.
 """
 
 BSD3 = """
-Copyright (c) %s, %s
+Copyright (c) %(year)s, %(author_name)s
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -1330,12 +1331,39 @@ LICENSES = {
 }
 
 
+SETUP = """
+from setuptools import setup
+
+long_desc = open('README.rst').read()
+
+setup(
+    name='%s',
+    version='%s',
+    url='%s',
+    install_requires=[],
+    description='%s',
+    long_description=long_desc,
+    author='%s',
+    author_email='%s',
+    maintainer='%s',
+    maintainer_email='%s',
+    packages=['%s'],
+    include_package_data=True
+)
+"""
+
+
 def say(text):
     sys.stdout.write(text)
 
 
 def create_empty_file(path):
     open(path, 'w').close()
+
+
+def create_file(path, content):
+    with open(path, 'w') as f:
+        f.write(content)
 
 
 def ask_question(text, default=None, is_yes_no=False, options=None):
@@ -1361,11 +1389,16 @@ def ask_question(text, default=None, is_yes_no=False, options=None):
         say("%s: " % text)
         var = raw_input()
 
+    if not var and default:
+        var = default
+
     return var
 
 
 def make_setup_file(name, author, author_email, project_url, desc, version):
-    pass
+    content = SETUP % (name, version, project_url, desc, author, author_email,
+            author, author_email, name)
+    create_file('setup.py', content)
 
 
 def main():
@@ -1375,16 +1408,24 @@ def main():
     author_email = ask_question("Author's email")
     project_url = ask_question('Project url')
     version = ask_question('Project version', default='0.0.1')
-    lib_or_exec = ask_question('Library or executable', options=['library', 'executable'])
 
     license = ask_question('License', options=LICENSES.keys())
-    license = LICENSES[license] % (datetime.now().year, author)
+    license_data = {
+        'year': datetime.now().year,
+        'name': name,
+        'author_name': author
+    }
+    license = LICENSES[license] % license_data
+    create_file('LICENSE', license)
 
     create_empty_file('.gitignore')
     create_empty_file('README.rst')
     create_empty_file('requirements.txt')
 
     make_setup_file(name, author, author_email, project_url, desc, version)
+
+    os.mkdir(name)
+    create_empty_file(os.path.join(name, '__init__.py'))
 
 
 if __name__ == '__main__':
